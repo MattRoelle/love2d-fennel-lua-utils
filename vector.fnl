@@ -106,6 +106,22 @@
     (vec (* (math.cos theta) len)
          (* (math.sin theta) len))))
 
+(fn Vector2D.clamp-length [self min max]
+  (let [l (self:length)]
+    (if (< l min)
+        (self:set-length min)
+        (> l max)
+        (self:set-length max)
+        self)))
+
+(fn Vector2D.clamp-length! [self min max]
+  (let [l (self:length)]
+    (if (< l min)
+        (self:set-length! min)
+        (> l max)
+        (self:set-length! max))
+    self))
+
 (fn Vector2D.set-length! [self len]
   (let [theta (self:angle)]
     (set (self.x self.y)
