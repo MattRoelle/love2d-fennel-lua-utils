@@ -15,39 +15,10 @@
     (let [dt (coroutine.yield)]
       (set timer (+ timer dt)))))
 
-(fn wait-until-next-frame []
-  (coroutine.yield))
-
 (fn tween [duration subject target easing]
   (let [tw (create-tween duration subject target easing)]
     (while (= (tw:status) :running)
       (tw:update (coroutine.yield)))))
-
-(fn parallel-tween [...]
-  (var tweens
-       (icollect [_ args (ipairs [...])]
-         (create-tween (unpack args))))
-  (while (> (length tweens) 0)
-    (let [dt (coroutine.yield)]
-      (each [_ tw (ipairs tweens)]
-        (if (= (tw:status) :running)
-            (tw:update dt)
-            (set tweens (lume.filter tweens #(not= $1 tw))))))))
-
-(fn all [timelines]
-  (let [completed (accumulate [acc true _ t (ipairs timelines)]
-                    (and acc (or (not t) t.done t.destroyed t.cancelled)))]
-    (if completed
-      true
-      (do
-        (coroutine.yield)
-        (all timelines)))))
-
-; (fn parallel [fns]
-;   "Waits until all the timelines are done."
-;   (while (accumulate [acc true _ t (ipairs fns)]
-;            (and acc (t:update dt)))
-;     (coroutine.yield)))
 
 (fn Timeline.update [self dt]
   "Returns a truthy value if the timeline is finished."
@@ -66,11 +37,5 @@
 
 (setmetatable
   {: wait 
-   : end
-   : wait-until-next-frame 
-   : poll-for-state
-   : tween
-   : parallel-tween
-   : all}
-   ;: parallel} 
+   : tween}
   {:__call #(timeline $2)})
